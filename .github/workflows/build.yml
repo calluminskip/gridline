@@ -11,11 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install 3DS libraries and examples
-        run: dkp-pacman -Syu --noconfirm 3ds-dev 3ds-examples
+      - name: Install 3DS libraries
+        run: dkp-pacman -Syu --noconfirm 3ds-dev
 
-      - name: Use the official sprites template Makefile
-        run: cp /opt/devkitpro/examples/3ds/graphics/gfx2d/sprites/Makefile Makefile
+      - name: Get the template Makefile
+        run: |
+          T=$(find /opt/devkitpro -type f -name Makefile -path "*sprites*" 2>/dev/null | head -n 1)
+          if [ -z "$T" ]; then
+            git clone --depth 1 https://github.com/devkitPro/3ds-examples /tmp/ex
+            T=$(find /tmp/ex -type f -name Makefile -path "*sprites*" | head -n 1)
+          fi
+          echo "Using $T"
+          cp "$T" Makefile
 
       - name: Build
         run: make
