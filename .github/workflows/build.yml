@@ -11,18 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install 3DS libraries
-        run: dkp-pacman -Syu --noconfirm 3ds-dev
+      - name: Install 3DS libraries and examples
+        run: dkp-pacman -Syu --noconfirm 3ds-dev 3ds-examples
 
-      - name: Get the template Makefile
+      - name: Get the 3DS template Makefile
         run: |
-          T=$(find /opt/devkitpro -type f -name Makefile -path "*sprites*" 2>/dev/null | head -n 1)
+          T=$(find /opt/devkitpro -type f -name Makefile -path "*3ds*" -path "*sprites*" 2>/dev/null | head -n 1)
           if [ -z "$T" ]; then
             git clone --depth 1 https://github.com/devkitPro/3ds-examples /tmp/ex
             T=$(find /tmp/ex -type f -name Makefile -path "*sprites*" | head -n 1)
           fi
           echo "Using $T"
           cp "$T" Makefile
+          grep -q 3ds_rules Makefile
 
       - name: Build
         run: make
